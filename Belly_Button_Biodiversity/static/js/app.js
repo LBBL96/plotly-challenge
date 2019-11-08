@@ -18,63 +18,50 @@ async function buildMetadata(sample) {
 
 };
 
-    // BONUS: Build the Gauge Chart
-    // buildGauge(data.WFREQ);
-
 async function buildCharts(sample) {
 
-  // @TODO: Use `d3.json` to fetch the sample data for the plots
+  // Use `d3.json` to fetch the sample data for the plots
   url2 = `/samples/${sample}`
   const sampleData = await d3.json(url2).catch(e => e.console.warn(e));
 
-  Object.entries(sampleData).forEach(([key, value]) => {
-   console.log(`${key}: ${value}`)
-  });
+  // Build a Bubble Chart using the sample data
 
-  // @TODO: Build a Bubble Chart using the sample data
-
-    
-
-  // var trace1 = {
-  //   x: [1, 2, 3, 4],
-  //   y: [10, 11, 12, 13],
-  //   mode: 'markers',
-  //   marker: {
-  //     size: [40, 60, 80, 100]
-  //   }
-  // };
+  var trace1 = {
+    x: sampleData.otu_ids,
+    y: sampleData.sample_values,
+    hoverinfo: "sampleData.otu_labels",
+    mode: 'markers',
+    marker: {
+      size: sampleData.sample_values,
+      color: sampleData.otu_ids
+    }
+  };
   
-  // var data = [trace1];
+  var layout = {
+    title: `ID: ${sample}`,
+  };
   
-  // var layout = {
-  //   title: 'Marker Size',
-  //   showlegend: false,
-  //   height: 600,
-  //   width: 600
-  // };
+  Plotly.newPlot('bubble', [trace1], layout);
+
+  // Build a Pie Chart
+ 
+  // Slice first ten items
+  const otu_10 = sampleData.otu_ids.slice(0, 10);
+  const labels_10 = sampleData.otu_labels.slice(0, 10);
+  const sample_10 = sampleData.sample_values.slice(0, 10);
+ 
+  var data = [{
+    values: sample_10,
+    labels: otu_10,
+    hoverinfo: labels_10,
+    type: 'pie'
+  }];
   
-  // Plotly.newPlot('myDiv', data, layout);
+  var layout = {
+    title: "Top 10"
+  };
 
-  // @TODO: Build a Pie Chart
-  // HINT: You will need to use slice() to grab the top 10 sample_values,
-  // otu_ids, and labels (10 each).
-
-  // Slices first two names
-  const left = names.slice(0, 10);
-  console.log(left);
-
-  // var data = [{
-  //   values: [sample_values],
-  //   labels: [otu_ids],
-  //   type: 'pie'
-  // }];
-  
-  // var layout = {
-  //   height: 400,
-  //   width: 500
-  // };
-
-   // Plotly.newPlot('myDiv', data, layout);
+   Plotly.newPlot('pie', data, layout);
 }
 
 function init() {
